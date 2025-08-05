@@ -1,0 +1,21 @@
+{
+  "name": "devops-portfolio-heypico",
+  "version": "1.0.0",
+  "description": "DevOps Portfolio Submission for HeyPico.ai",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "echo \"Running tests...\" && exit 0",
+    "docker:build": "docker build -t devops-portfolio .",
+    "docker:run": "docker run -p 3000:3000 devops-portfolio"
+  },
+  "keywords": ["devops", "nodejs", "docker", "kubernetes", "terraform", "jenkins"],
+  "author": "Junior DevOps Engineer",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}

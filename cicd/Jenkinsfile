@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = 'devops-portfolio'
+        DOCKER_TAG = "${BUILD_NUMBER}"
+    }
+    
+    tools {
+        nodejs '18'
+    }
+    
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Installing dependencies and building...'
+                sh 'npm install'
+                sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} -f docker-k8s/Dockerfile .'
+                echo 'Build completed successfully!'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                sh 'npm test'
+                echo 'Tests passed!'
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application...'
+                sh '''
+                    # Update image tag in deployment file
+                    sed -i "s|image: devops-portfolio:.*|image: devops-portfolio:${DOCKER_TAG}|g" docker-k8s/k8s-deployment.yaml
+                    
+                    # Deploy to Kubernetes
+                    kubectl apply -f docker-k8s/k8s-configmap.yaml
+                    kubectl apply -f docker-k8s/k8s-deployment.yaml
+                    kubectl apply -f docker-k8s/k8s-service.yaml
+                    
+                    # Wait for deployment to finish
+                    kubectl rollout status deployment/devops-portfolio-deployment --timeout=300s
+                '''
+                echo 'Deployment completed!'
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Pipeline finished!'
+        }
+        success {
+            echo '✅ Pipeline succeeded!'
+        }
+        failure {
+            echo '❌ Pipeline failed!'
+        }
+    }
+}

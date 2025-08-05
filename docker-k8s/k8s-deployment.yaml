@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-portfolio-deployment
+  labels:
+    app: devops-portfolio
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: devops-portfolio
+  template:
+    metadata:
+      labels:
+        app: devops-portfolio
+    spec:
+      containers:
+      - name: devops-portfolio
+        image: devops-portfolio:latest
+        ports:
+        - containerPort: 3000
+        
+        envFrom:
+        - configMapRef:
+            name: devops-portfolio-config
